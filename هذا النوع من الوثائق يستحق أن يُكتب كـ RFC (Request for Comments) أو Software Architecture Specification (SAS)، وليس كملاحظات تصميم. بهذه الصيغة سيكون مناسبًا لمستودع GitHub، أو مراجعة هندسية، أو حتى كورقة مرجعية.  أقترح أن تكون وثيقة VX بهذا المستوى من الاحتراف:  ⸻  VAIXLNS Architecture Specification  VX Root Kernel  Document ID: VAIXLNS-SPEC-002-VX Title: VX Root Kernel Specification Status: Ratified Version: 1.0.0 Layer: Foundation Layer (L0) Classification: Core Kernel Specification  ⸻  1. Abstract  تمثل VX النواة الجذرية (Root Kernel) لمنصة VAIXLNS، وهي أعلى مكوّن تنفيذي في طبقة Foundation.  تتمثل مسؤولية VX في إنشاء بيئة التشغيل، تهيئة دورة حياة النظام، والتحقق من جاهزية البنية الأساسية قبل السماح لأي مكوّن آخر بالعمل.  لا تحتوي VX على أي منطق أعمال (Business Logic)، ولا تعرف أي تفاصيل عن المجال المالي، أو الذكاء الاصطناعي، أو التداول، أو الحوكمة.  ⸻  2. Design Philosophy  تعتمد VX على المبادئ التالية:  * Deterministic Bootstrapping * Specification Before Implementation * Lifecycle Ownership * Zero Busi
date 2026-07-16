@@ -1,0 +1,321 @@
+هذا النوع من الوثائق يستحق أن يُكتب كـ RFC (Request for Comments) أو Software Architecture Specification (SAS)، وليس كملاحظات تصميم. بهذه الصيغة سيكون مناسبًا لمستودع GitHub، أو مراجعة هندسية، أو حتى كورقة مرجعية.
+
+أقترح أن تكون وثيقة VX بهذا المستوى من الاحتراف:
+
+⸻
+
+VAIXLNS Architecture Specification
+
+VX Root Kernel
+
+Document ID: VAIXLNS-SPEC-002-VX
+Title: VX Root Kernel Specification
+Status: Ratified
+Version: 1.0.0
+Layer: Foundation Layer (L0)
+Classification: Core Kernel Specification
+
+⸻
+
+1. Abstract
+
+تمثل VX النواة الجذرية (Root Kernel) لمنصة VAIXLNS، وهي أعلى مكوّن تنفيذي في طبقة Foundation.
+
+تتمثل مسؤولية VX في إنشاء بيئة التشغيل، تهيئة دورة حياة النظام، والتحقق من جاهزية البنية الأساسية قبل السماح لأي مكوّن آخر بالعمل.
+
+لا تحتوي VX على أي منطق أعمال (Business Logic)، ولا تعرف أي تفاصيل عن المجال المالي، أو الذكاء الاصطناعي، أو التداول، أو الحوكمة.
+
+⸻
+
+2. Design Philosophy
+
+تعتمد VX على المبادئ التالية:
+
+* Deterministic Bootstrapping
+* Specification Before Implementation
+* Lifecycle Ownership
+* Zero Business Knowledge
+* Immutable Initialization
+* Dependency Isolation
+* Security by Design
+* Fail Fast Principle
+
+⸻
+
+3. Objectives
+
+تلتزم VX بتحقيق الأهداف التالية:
+
+* إنشاء بيئة تشغيل حتمية.
+* إدارة دورة حياة النظام.
+* تسجيل المكونات.
+* تحميل التكوين.
+* التحقق من سلامة الإقلاع.
+* منع بدء التشغيل عند وجود أخطاء حرجة.
+
+⸻
+
+4. Out of Scope
+
+يحظر على VX تنفيذ أي مما يلي:
+
+* اتخاذ قرارات.
+* تنفيذ التداول.
+* حساب المؤشرات.
+* إدارة المخاطر.
+* الوصول للأسواق.
+* تشغيل الذكاء الاصطناعي.
+* تعديل Ledger.
+* تطبيق السياسات.
+
+⸻
+
+5. Architectural Responsibilities
+
+تشمل مسؤوليات VX:
+
+1. Bootstrap Management
+2. Runtime Initialization
+3. Configuration Loading
+4. Component Registration
+5. Kernel Lifecycle
+6. Startup Validation
+7. Graceful Shutdown
+8. Health Initialization
+
+⸻
+
+6. Lifecycle Model
+
+Created
+    │
+    ▼
+Configuration Loading
+    │
+    ▼
+Bootstrap
+    │
+    ▼
+Component Registration
+    │
+    ▼
+Initialization Validation
+    │
+    ▼
+Kernel Ready
+    │
+    ▼
+Running
+    │
+    ▼
+Shutdown Requested
+    │
+    ▼
+Graceful Shutdown
+    │
+    ▼
+Stopped
+
+⸻
+
+7. State Machine
+
+State	Description
+Uninitialized	لم يبدأ النظام
+Initializing	تهيئة النواة
+Ready	جاهز للتشغيل
+Running	النظام يعمل
+Stopping	إيقاف آمن
+Stopped	توقف كامل
+Failed	فشل غير قابل للاستمرار
+
+⸻
+
+8. Public Interfaces
+
+يوفر VX الواجهات المفاهيمية التالية:
+
+* Initialize()
+* RegisterComponent()
+* ResolveConfiguration()
+* Start()
+* Shutdown()
+* ReportHealth()
+
+لا يسمح بأي واجهات خاصة بالتداول أو الذكاء أو الحوكمة.
+
+⸻
+
+9. Dependency Contract
+
+Depends On
+
+* Runtime Environment
+* Configuration Provider
+* System Resources
+
+Must Never Depend On
+
+* XV
+* V
+* VN
+* NV
+* VV
+* XX
+* LL
+* NN
+* SS
+* II
+* VIX
+* LNS
+
+⸻
+
+10. Authority Boundary
+
+يسمح لـ VX فقط بـ:
+
+* إنشاء النظام.
+* تسجيل المكونات.
+* إدارة دورة الحياة.
+
+ولا يمتلك أي صلاحية تشغيلية داخل المجال المالي.
+
+⸻
+
+11. Security Constraints
+
+تلتزم VX بما يلي:
+
+* عدم الوصول إلى الأسواق.
+* عدم تنفيذ أوامر.
+* عدم تعديل السياسات.
+* عدم تعديل البيانات المالية.
+* عدم تجاوز عقود الوكلاء.
+* نشر أحداث Lifecycle فقط.
+
+⸻
+
+12. Runtime Invariants
+
+يجب أن تبقى الشروط التالية صحيحة دائماً:
+
+* جميع المكونات مسجلة قبل التشغيل.
+* يمنع التسجيل بعد Ready.
+* يمنع تغيير Lifecycle.
+* يمنع تجاوز Bootstrap.
+* يمنع إعادة التهيئة أثناء التشغيل.
+
+⸻
+
+13. Failure Contract
+
+في حال حدوث خطأ حرج:
+
+1. إيقاف عملية الإقلاع.
+2. نشر KernelFailure.
+3. رفض الانتقال إلى Running.
+4. تحرير الموارد.
+5. إنهاء التشغيل بصورة آمنة.
+
+⸻
+
+14. Extension Model
+
+يمكن توسيع VX عبر:
+
+* Providers
+* Extensions
+* Plugins
+* Boot Modules
+
+دون تعديل النواة.
+
+⸻
+
+15. Performance Requirements
+
+* Boot Time قابل للقياس.
+* Startup Deterministic.
+* Registration Order ثابت.
+* Startup Repeatable.
+
+⸻
+
+16. Acceptance Criteria
+
+تعتبر VX مطابقة للمواصفة إذا:
+
+* نجح الإقلاع.
+* سجلت جميع المكونات.
+* لم تُسجل أي مكونات بعد Ready.
+* لم يحدث أي Dependency Leak.
+* كانت جميع انتقالات الحالة صحيحة.
+
+⸻
+
+17. Architectural Laws
+
+Law VX-01
+
+VX owns the lifecycle.
+
+Law VX-02
+
+VX shall contain no business logic.
+
+Law VX-03
+
+VX shall never depend on higher architectural layers.
+
+Law VX-04
+
+Every component shall be initialized through VX.
+
+Law VX-05
+
+Initialization shall be deterministic.
+
+⸻
+
+18. Compliance Matrix
+
+Requirement	Status
+Deterministic Lifecycle	Required
+Zero Business Logic	Required
+Security Isolation	Required
+Immutable Initialization	Required
+Component Registration	Required
+Graceful Shutdown	Required
+
+⸻
+
+19. Revision History
+
+Version	Status	Notes
+1.0.0	Ratified	Initial global specification
+
+⸻
+
+التقييم المعماري
+
+بهذا المستوى، لا تصبح الوثيقة مجرد README، بل Software Architecture Specification (SAS) قابلة للتدقيق. وهي مناسبة كمستند رسمي داخل:
+
+docs/
+└── architecture/
+    ├── 01-core-architecture-charter.md
+    ├── 02-vx-root-kernel.md
+    ├── 03-xv-kernel-coordinator.md
+    ├── 04-v-governance-kernel.md
+    ├── 05-vn-verification-network.md
+    ├── 06-nv-normalization-validation.md
+    ├── 07-vv-verification-agent.md
+    ├── 08-xx-execution-agent.md
+    ├── 09-ll-immutable-ledger.md
+    ├── 10-nn-causal-model-service.md
+    ├── 11-ss-strategy-service.md
+    ├── 12-ii-intelligence-agent.md
+    ├── 13-vix-decision-orchestrator.md
+    └── 14-lns-specification-layer.md
+
+بهذا الهيكل تصبح مواصفات VAIXLNS أقرب إلى الوثائق المرجعية التي تُستخدم في المشاريع المؤسسية والأنظمة الحرجة، حيث يُعد كل ملف مواصفة مستقلة ذات هوية وإصدار وقوانين واضحة، وليس مجرد شرح للمكونات.
