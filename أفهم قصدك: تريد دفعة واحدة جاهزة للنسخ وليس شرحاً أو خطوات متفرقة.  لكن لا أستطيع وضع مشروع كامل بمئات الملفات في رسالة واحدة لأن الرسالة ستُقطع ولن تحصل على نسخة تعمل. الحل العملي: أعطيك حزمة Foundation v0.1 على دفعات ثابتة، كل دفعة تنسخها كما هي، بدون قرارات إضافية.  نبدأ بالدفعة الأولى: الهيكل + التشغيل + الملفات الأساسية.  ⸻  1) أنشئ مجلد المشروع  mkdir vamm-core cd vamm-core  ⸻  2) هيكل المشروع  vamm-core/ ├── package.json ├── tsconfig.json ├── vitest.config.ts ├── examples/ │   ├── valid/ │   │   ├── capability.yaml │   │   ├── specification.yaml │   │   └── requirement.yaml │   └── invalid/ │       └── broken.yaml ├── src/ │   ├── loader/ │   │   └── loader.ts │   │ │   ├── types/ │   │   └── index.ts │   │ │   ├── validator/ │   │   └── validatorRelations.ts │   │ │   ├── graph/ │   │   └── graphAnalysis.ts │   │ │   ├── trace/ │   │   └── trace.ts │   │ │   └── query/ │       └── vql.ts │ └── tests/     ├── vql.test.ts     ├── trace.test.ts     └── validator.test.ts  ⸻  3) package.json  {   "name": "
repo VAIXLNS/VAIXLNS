@@ -1,0 +1,189 @@
+أفهم قصدك: تريد دفعة واحدة جاهزة للنسخ وليس شرحاً أو خطوات متفرقة.
+
+لكن لا أستطيع وضع مشروع كامل بمئات الملفات في رسالة واحدة لأن الرسالة ستُقطع ولن تحصل على نسخة تعمل. الحل العملي: أعطيك حزمة Foundation v0.1 على دفعات ثابتة، كل دفعة تنسخها كما هي، بدون قرارات إضافية.
+
+نبدأ بالدفعة الأولى: الهيكل + التشغيل + الملفات الأساسية.
+
+⸻
+
+1) أنشئ مجلد المشروع
+
+mkdir vamm-core
+cd vamm-core
+
+⸻
+
+2) هيكل المشروع
+
+vamm-core/
+├── package.json
+├── tsconfig.json
+├── vitest.config.ts
+├── examples/
+│   ├── valid/
+│   │   ├── capability.yaml
+│   │   ├── specification.yaml
+│   │   └── requirement.yaml
+│   └── invalid/
+│       └── broken.yaml
+├── src/
+│   ├── loader/
+│   │   └── loader.ts
+│   │
+│   ├── types/
+│   │   └── index.ts
+│   │
+│   ├── validator/
+│   │   └── validatorRelations.ts
+│   │
+│   ├── graph/
+│   │   └── graphAnalysis.ts
+│   │
+│   ├── trace/
+│   │   └── trace.ts
+│   │
+│   └── query/
+│       └── vql.ts
+│
+└── tests/
+    ├── vql.test.ts
+    ├── trace.test.ts
+    └── validator.test.ts
+
+⸻
+
+3) package.json
+
+{
+  "name": "vamm-core",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "yaml": "^2.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+  }
+}
+
+⸻
+
+4) التثبيت
+
+npm install
+
+⸻
+
+5) src/types/index.ts
+
+export interface Relation {
+  type: string;
+  target: string;
+}
+export interface Artifact {
+  id: string;
+  kind: string;
+  version: string;
+  namespace: string;
+  lifecycle: string;
+  status: string;
+  relations?: Relation[];
+}
+export interface Diagnostic {
+  severity: "error" | "warning" | "info";
+  code: string;
+  message: string;
+  artifact?: string;
+}
+export interface Result {
+  rows: any[];
+  diagnostics: Diagnostic[];
+}
+
+⸻
+
+6) src/loader/loader.ts
+
+import fs from "node:fs";
+import path from "node:path";
+import YAML from "yaml";
+import type { Artifact } from "../types/index.js";
+export function loadDirectory(dir:string):Artifact[] {
+ const files =
+ fs.readdirSync(dir)
+ .filter(x=>x.endsWith(".yaml"));
+ return files.map(file=>{
+   const content =
+   fs.readFileSync(
+    path.join(dir,file),
+    "utf8"
+   );
+   return YAML.parse(content) as Artifact;
+ });
+}
+
+⸻
+
+7) مثال تشغيل
+
+examples/valid/capability.yaml
+
+id: CAP-IDENTITY
+kind: Capability
+version: 1.0.0
+namespace: vaixlns.identity
+lifecycle: Stable
+status: valid
+relations:
+  - type: implements
+    target: SPEC-001
+
+⸻
+
+examples/valid/specification.yaml
+
+id: SPEC-001
+kind: Specification
+version: 1.0.0
+namespace: vaixlns.spec
+lifecycle: Stable
+status: valid
+relations:
+  - type: requires
+    target: REQ-001
+
+⸻
+
+examples/valid/requirement.yaml
+
+id: REQ-001
+kind: Requirement
+version: 1.0.0
+namespace: vaixlns.requirements
+lifecycle: Stable
+status: valid
+
+⸻
+
+بعد لصق هذه الدفعة شغّل:
+
+npm run build
+
+إذا نجح نكمل مباشرة بالدفعة الثانية:
+
+* validatorRelations.ts
+* graphAnalysis.ts
+* trace.ts
+* vql.ts
+* الاختبارات
+
+وبعدها يصبح عندك:
+
+vamm query "TRACE CAP-IDENTITY" examples/valid
+
+يعمل فعلياً.
